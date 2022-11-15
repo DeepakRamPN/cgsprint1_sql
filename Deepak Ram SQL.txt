@@ -1,0 +1,277 @@
+--CREATING AND USE DATABASE PRACTICE 
+create database  pratice 
+use database pratice
+
+--CREATING WAREHOUSE 
+use warehouse capgemini
+use warehouse capgemini
+
+--CREATING THE GIVEN TABLES LOCATION, JOBS, DEPARTMENT, EMPLOYEE, DEPENTENT
+create table public.Location
+(LOC_ID INT PRIMARY KEY,
+STREET_NO INT,
+VILL_NAME VARCHAR(40),
+CITY VARCHAR(30),
+STATE VARCHAR(25),
+COUNTRY VARCHAR(30));
+
+create table public.Jobs
+(JOB_ID INT PRIMARY KEY,
+JOB_TITLE VARCHAR(30));
+
+create table public.department
+(DEPT_ID INT primary key ,    
+DEPT_NAME VARCHAR (30),        
+LOC_ID INT ,    
+DEPT_HEAD VARCHAR (30),
+FOREIGN KEY (LOC_ID) REFERENCES LOCATION (LOC_ID));
+
+create table public.employee 
+(EMPLOYEE_ID INT PRIMARY KEY,
+EMP_NAME  VARCHAR(30),
+DEPT_ID  INT ,    
+JOINING_DT    DATE,          
+DOB    DATE,          
+YRS_OF_EXP    NUMERIC,          
+PHONE_NUMB    INT ,          
+MARTIAL_STATUS    BOOLEAN,          
+JOB_ID INT,
+SALARY  DECIMAL,      
+MANAGER_ID  INT ,
+FOREIGN KEY (JOB_ID) REFERENCES Jobs(JOB_ID),
+FOREIGN KEY (DEPT_ID) REFERENCES department (DEPT_ID));
+
+create table public.dependents  
+(DEP_ID INT    PRIMARY KEY,
+DEP_NAME  VARCHAR(50),    
+RELATIONSHIP  VARCHAR (25),    
+EMPLOYEE_ID  INT,
+FOREIGN KEY (EMPLOYEE_ID) REFERENCES employee(EMPLOYEE_ID));
+
+--INSERTING VALUES TO EACH TABLE
+
+INSERT INTO LOCATION VALUES(1,101,'Ambattur','Chennai','Tamil Nadu','India');
+INSERT INTO LOCATION VALUES(2,102,'Tata Nagar','Jamshedpur','Jharkhand','India');
+INSERT INTO LOCATION VALUES(3,103,'Madhapur','Hyderabad','Telungana','India');
+INSERT INTO LOCATION VALUES(4,104,'High Tech','Bangalore','Karnataka','India');
+INSERT INTO LOCATION VALUES(5,105,'Hinjawadi ','Pune','Maharashtra','India');
+ 
+select * from location;
+
+INSERT INTO JOBS VALUES(1,'MANAGER');
+INSERT INTO JOBS VALUES(2,'HR');
+INSERT INTO JOBS VALUES(3,'ASSISTANT');
+INSERT INTO JOBS VALUES(4,'ANALYST');
+INSERT INTO JOBS VALUES(5,'SENIOR ANALYST');
+
+select * from jobs;
+
+INSERT INTO DEPARTMENT VALUES(420,'Accounting',2,'Deepak');
+INSERT INTO DEPARTMENT VALUES(421,'Research',3,'Mallika');
+INSERT INTO DEPARTMENT VALUES(422,'Sales',1,'Ramya');
+INSERT INTO DEPARTMENT VALUES(423,'Marketing',5,'Yamini');
+INSERT INTO DEPARTMENT VALUES(424,'Operation',4,'Nagaraj');
+
+select * from department;
+ 
+INSERT INTO EMPLOYEE VALUES(1,'Deepak Ram',420,to_date('04-10-2022','DD-MM-YYYY'),to_date('11-07-2000','DD-MM-YYYY'),1,8072272388,0,1,50000,100);
+INSERT INTO EMPLOYEE VALUES(2,'Ramya',421,to_date('26-02-2019','DD-MM-YYYY'),to_date('26-02-1996','DD-MM-YYYY'),5,9003046898,0,1,52000,101);
+INSERT INTO EMPLOYEE VALUES(3,'Yamini',422,to_date('16-04-2020','DD-MM-YYYY'),to_date('16-04-1997','DD-MM-YYYY'),4,8374456197,0,1,70000,102);
+INSERT INTO EMPLOYEE VALUES(4,'Nagaraj',423,to_date('22-01-1990','DD-MM-YYYY'),to_date('22-01-1971','DD-MM-YYYY'),20,9074351509,1,1,45000,103);
+INSERT INTO EMPLOYEE VALUES(5,'Mallika',424,to_date('04-08-2000','DD-MM-YYYY'),to_date('18-08-1977','DD-MM-YYYY'),18,7012836756,1,1,55000,104);
+
+select * from employee;
+
+
+INSERT INTO DEPENDENTS VALUES(1,'ABC','Son',5);
+INSERT INTO DEPENDENTS VALUES(5,'BCD','Spouse',4);
+
+select * from dependents;
+
+--2.1.1 Write a query to display employee id, employee name, department id, department name of all employees who has a department assigned?
+
+SELECT E.EMPLOYEE_ID,E.EMP_NAME,D.DEPT_ID,D.DEPT_NAME 
+FROM EMPLOYEE E, DEPARTMENT D
+WHERE E.DEPT_ID=D.DEPT_ID
+AND E.DEPT_ID IS NOT NULL;
+
+--2.1.2 Write query to display employee name with monthly salary?
+
+SELECT EMP_NAME, (SALARY) AS MONTHLY_SALARY
+FROM EMPLOYEE;
+
+--2.2.1. Write a query to display employee details with salary less than 5 lakhs?
+
+SELECT EMP_NAME FROM EMPLOYEE
+WHERE SALARY*12 < 500000;
+
+--2.2.2 Write a query to display the employee id, employee name of the employees who joined before 2015?
+
+SELECT EMPLOYEE_ID, EMP_NAME FROM EMPLOYEE
+WHERE JOINING_DT < to_date('2015','YYYY');
+
+--2.2.3 Write a query to display the employee name, salary and manager ID, for those employees whose managers hold the ID 100, 120, 145, 149?
+
+SELECT EMP_NAME, SALARY, MANAGER_ID 
+FROM EMPLOYEE 
+WHERE MANAGER_ID IN (100,102,103);
+
+--2.2.4 Write a query to display all employee names to begin with ‘R’?
+
+SELECT EMP_NAME FROM EMPLOYEE
+WHERE EMP_NAME LIKE 'R%';
+
+--2.2.5 Write an SQL query to fetch the list of employees with the same salary?
+
+SELECT EMP_NAME, SALARY
+FROM EMPLOYEE
+WHERE SALARY IN
+    (SELECT SALARY
+     FROM EMPLOYEE E
+     WHERE EMPLOYEE.EMPLOYEE_ID <> E.EMPLOYEE_ID
+    );
+
+--2.2.6 Write a query to retrieve all the employees who are working in Accounting Research Sales departments?
+
+SELECT EMP_NAME FROM EMPLOYEE E
+JOIN DEPARTMENT D
+ON E.DEPT_ID = D.DEPT_ID 
+WHERE D.DEPT_NAME IN ('Accounting', 'Research', 'Sales');
+
+--2.3.1 Write a query to display number of employees in each department and group by department?
+
+select e.dept_id, count(*)as total_no_of_employee from employee e
+where e.dept_id is not null
+group by e.dept_id;
+
+--2.3.2. Write query to fetch employee name, department number of all employees in departments 20 or 50 in ascending alphabetical and order by name?
+
+select emp_name, dept_id from employee where dept_id in (420,424)
+order by emp_name asc;
+ 
+--2.3.3. Write a query to Display the employee name, department number, and department name for each employee order by employee name?
+
+select e.emp_name,e.dept_id,d.dept_name from employee e, department d
+where e.dept_id=d.dept_id 
+order by e.emp_name; 
+
+ 
+--2.3.4. Write a query to get the employee name, department id, years of experience for unmarried employees group by experience and order by department id?
+
+select emp_name,DEPT_ID,YRS_OF_EXP from employee
+where MARTIAL_STATUS =1
+GROUP BY YRS_OF_EXP,emp_name,DEPT_ID
+order by DEPT_ID;
+
+ 
+--2.4.1 Write a query to get employee name, employee id, department name who belongs to state ANDHRA PRADESH use left join?
+
+select e.employee_id,e.emp_name,d.dept_name,l.state from employee e
+left join department d
+on e.DEPT_ID = d.DEPT_ID
+left join location l on d.loc_id = l.loc_id
+where l.state = 'Tamil Nadu';
+
+--2.4.2 Write query to find employee name, salary and job title for all employees use right join?
+
+select  e.emp_name,e.salary,j.job_title from employee e 
+right join jobs j
+on e.job_id = j.job_id;
+
+
+--2.4.3 Write a query to get number of employees with same job title use inner join?
+
+select count(e.employee_id) as number_of_employees, j.job_title from employee e 
+inner join jobs j
+on e.job_id = j.job_id
+GROUP BY J.JOB_TITLE;
+
+--2.4.4 Write q query to get employee name, department name, state who are unmarried use full join?
+
+select e.emp_name, d.dept_name,martial_status as Unmarried from employee e
+full OUTER join department d
+on E.DEPT_ID=D.DEPT_ID
+where martial_status = 1;
+
+--2.5.1 Write a query to get difference between highest and lowest salaries and label the column difference?
+
+select max(salary)-min(salary) as Difference
+from employee;
+
+--2.5.2 Write a query to display employees who earn more than the average salary and who work in the IT department?
+
+select e.emp_name,e.salary,d.dept_name from employee e, department d
+where e.dept_id = d.dept_id and d.dept_name ='Sales' and e.salary >= (select avg(salary) from employee);
+ 
+
+--2.5.3 Write a query to display what is the average, maximum and minimum salary for each department?
+
+select avg(salary),max(salary),min(salary) from employee
+group by dept_id;
+
+
+--2.6.1 Write an SQL query to print the first three characters of EMPLOYEE NAME?
+
+SELECT SUBSTRING(emp_name, 1, 3 ) FROM employee;
+
+--2.6.2 Write a query to print employee name ends with ‘h’ and contains six alphabets?
+
+SELECT emp_name FROM employee
+WHERE emp_name LIKE '%a'
+  AND LENGTH (emp_name) = 5;
+  
+--2.6.3 Write a query to get age from date of birth in employee table?
+
+Select EMP_name,DOB, getdate() as CurrentDate, year(getdate())-year(dob) as age from Employee;
+
+--2.6.4 Write a query to convert employee into lower case and find the length of the employee name?
+
+SELECT lower(emp_name), length(emp_name) as name_length FROM employee;
+
+--2.6.5 Write a query to add current date as date to the employee table?
+
+select emp_name,getdate() as CurrentDate from employee;
+ 
+---2.6.62.6.6 Write a query to convert decimal type to integer for salary column in employee table?
+
+ALTER TABLE EMPLOYEE
+MODIFY SALARY NUMBER(8,0);
+
+--2.6.7 Write a query to format joining date to format YYYY-MM-DD ?
+
+SELECT TO_CHAR(joining_dt, 'YYYY-MM-DD') FROM employee;
+SELECT * FROM EMPLOYEE;
+
+--2.7.1 Write a query to create a view that shows employee name, phone number, Manager id from employees table who are from city = Chennai?
+
+create or replace view chennai_employees(emp_name,phone_numb,manager_id) as
+select e.emp_name,e.phone_numb,e.manager_id from employee e
+left join department d
+on E.DEPT_ID=D.DEPT_ID
+left join location l on d.loc_id = l.loc_id
+where l.city = 'Chennai';
+
+select * from chennai_employees;
+ 
+--2.7.2 Write a query to create an index on employee table with employee name, DOB and martial status?
+
+create index EMP_INDEX ON employee(emp_name,dob,martial_status);
+
+--2.8.1 Write a query to fetch all the employee details who do not have location Id 2546?
+
+select * from employee
+where dept_id in (select dept_id from department
+                  where loc_id in (select loc_id from location
+                                    where loc_id not in (1)));
+                                    
+--2.8.2 Write a query to fetch employee details whose salaries are greater than the average salary of all the employees?                                                                   
+select * from employee
+where salary >= (select avg(salary) from employee);
+
+--2.8.3 Write a query to find all the departments do not have any employee with salary greater than 2.5 lakhs?
+
+select dept_name from department
+where dept_id in (select dept_id from employee
+                   where salary < 250000);
+
+
